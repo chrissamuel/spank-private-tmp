@@ -179,9 +179,9 @@ int _tmpdir_init(spank_t sp, int ac, char **av) {
 	}
 
 	// Init base path
-	n = snprintf(pbase, sizeof(pbase), "%s.%u.%u", tmpdir, jobid, restartcount);
+	n = snprintf(pbase, sizeof(pbase), "%s/%u.%u", tmpdir, jobid, restartcount);
 	if( n < 0 || n > sizeof(pbase) - 1 ) {
-		slurm_error("hpc2n-tmpdir: \"%s.%u.%u\" too large. Aborting",tmpdir,jobid,restartcount);
+		slurm_error("hpc2n-tmpdir: \"%s/%u.%u\" too large. Aborting",tmpdir,jobid,restartcount);
 		return -1;
 	}
 
