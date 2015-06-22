@@ -20,6 +20,7 @@
 #include <linux/fs.h>
 #include <slurm/spank.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <sched.h>
 
@@ -61,8 +62,15 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 		return -1;
 	}
 	if(mkdir(pbase,0700)) {
-		slurm_error("hpc2n-tmpdir: mkdir(\"%s\",0700): %m", pbase);
-		return -1;
+		/*
+		 * If the directory already exists another node beat us to it.
+		 * Keep calm and carry on.
+		 */
+		if (EEXIST!=errno)
+		{
+			slurm_error("hpc2n-tmpdir: mkdir(\"%s\",0700): %m", pbase);
+			return -1;
+		}
 	}
 	if(chown(pbase,uid,gid)) {
 		slurm_error("hpc2n-tmpdir: chown(%s,%u,%u): %m", pbase,uid,gid);
