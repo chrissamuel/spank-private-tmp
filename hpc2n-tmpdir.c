@@ -78,8 +78,11 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 	}
 	for(i=0;i<bind_dirs_count;i++) {
 		if(mkdir(bind_path[i],0700)) {
-			slurm_error("hpc2n-tmpdir: mkdir(\"%s\",0700): %m", bind_path[i]);
-			return -1;
+			if (EEXIST!=errno)
+			{
+				slurm_error("hpc2n-tmpdir: mkdir(\"%s\",0700): %m", bind_path[i]);
+				return -1;
+			}
 		}
 		if(chown(bind_path[i],uid,gid)) {
 			slurm_error("hpc2n-tmpdir: chown(%s,%u,%u): %m", bind_path[i],uid,gid);
