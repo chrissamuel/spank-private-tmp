@@ -58,6 +58,36 @@ int slurm_spank_init(spank_t sp, int ac, char **av) {
 
 int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 {
+	if(_tmdir_mkdir(sp,ac,av))
+	{
+		return -1;
+	}
+	return _tmpdir_bind(sp,ac,av);
+}
+
+int slurm_spank_init_post_opt(spank_t sp, int ac, char **av)
+{
+	if(_tmdir_mkdir(sp,ac,av))
+	{
+		return -1;
+	}
+	return _tmpdir_bind(sp,ac,av);
+}
+
+int slurm_spank_local_user_init(spank_t sp, int ac, char **av)
+{
+	if(_tmdir_mkdir(sp,ac,av))
+	{
+		return -1;
+	}
+	return _tmpdir_bind(sp,ac,av);
+}
+
+/*
+ * Function to create a temporary directory, per jobstep.
+ */
+int _tmpdir_mkdir(spank_t sp, int ac, char **av)
+{
 	int i;
 	if(_tmpdir_init(sp,ac,av)) {
 		return -1;
@@ -90,17 +120,7 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 			return -1;
 		}
 	}
-	return _tmpdir_bind(sp,ac,av);
-}
-
-int slurm_spank_init_post_opt(spank_t sp, int ac, char **av)
-{
-	return _tmpdir_bind(sp,ac,av);
-}
-
-int slurm_spank_local_user_init(spank_t sp, int ac, char **av)
-{
-	return _tmpdir_bind(sp,ac,av);
+	return 0;
 }
 
 int _tmpdir_bind(spank_t sp, int ac, char **av)
