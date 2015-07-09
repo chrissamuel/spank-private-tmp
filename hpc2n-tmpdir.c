@@ -191,7 +191,7 @@ int _tmpdir_init(spank_t sp, int ac, char **av) {
 	}
 
 	// Get Step ID
-	if(spank_get_item(sp, S_JOB_STEPID:, &stepid) != ESPANK_SUCCESS) {
+	if(spank_get_item(sp, S_JOB_STEPID, &stepid) != ESPANK_SUCCESS) {
 		slurm_debug("hpc2n-tmpdir: Unable to get job's step ID");
 		gid = 0;
 	}
