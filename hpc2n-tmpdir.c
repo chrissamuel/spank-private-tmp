@@ -68,10 +68,6 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 
 int slurm_spank_init_post_opt(spank_t sp, int ac, char **av)
 {
-	if(_tmpdir_mkdir(sp,ac,av))
-	{
-		return -1;
-	}
 	return _tmpdir_bind(sp,ac,av);
 }
 
