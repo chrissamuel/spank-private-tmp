@@ -38,6 +38,7 @@ uid_t uid = (uid_t)-1;
 gid_t gid = (gid_t)-1;
 uint32_t jobid;
 uint32_t restartcount;
+uint32_t stepid;
 
 char *bind_dirs[MAX_BIND_DIRS];
 char *bind_path[MAX_BIND_DIRS];
@@ -189,10 +190,16 @@ int _tmpdir_init(spank_t sp, int ac, char **av) {
 		gid = 0;
 	}
 
+	// Get Step ID
+	if(spank_get_item(sp, S_JOB_STEPID:, &stepid) != ESPANK_SUCCESS) {
+		slurm_debug("hpc2n-tmpdir: Unable to get job's step ID");
+		gid = 0;
+	}
+
 	// Init base path
-	n = snprintf(pbase, sizeof(pbase), "%s/%u.%u", tmpdir, jobid, restartcount);
+	n = snprintf(pbase, sizeof(pbase), "%s/%u.%u.%u", tmpdir, jobid, restartcount, stepid);
 	if( n < 0 || n > sizeof(pbase) - 1 ) {
-		slurm_error("hpc2n-tmpdir: \"%s/%u.%u\" too large. Aborting",tmpdir,jobid,restartcount);
+		slurm_error("hpc2n-tmpdir: \"%s/%u.%u.%u\" too large. Aborting",tmpdir,jobid,restartcount, stepid);
 		return -1;
 	}
 
