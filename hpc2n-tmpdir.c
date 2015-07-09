@@ -59,7 +59,7 @@ int slurm_spank_init(spank_t sp, int ac, char **av) {
 
 int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 {
-	if(_tmdir_mkdir(sp,ac,av))
+	if(_tmpdir_mkdir(sp,ac,av))
 	{
 		return -1;
 	}
@@ -68,7 +68,7 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 
 int slurm_spank_init_post_opt(spank_t sp, int ac, char **av)
 {
-	if(_tmdir_mkdir(sp,ac,av))
+	if(_tmpdir_mkdir(sp,ac,av))
 	{
 		return -1;
 	}
@@ -77,7 +77,7 @@ int slurm_spank_init_post_opt(spank_t sp, int ac, char **av)
 
 int slurm_spank_local_user_init(spank_t sp, int ac, char **av)
 {
-	if(_tmdir_mkdir(sp,ac,av))
+	if(_tmpdir_mkdir(sp,ac,av))
 	{
 		return -1;
 	}
