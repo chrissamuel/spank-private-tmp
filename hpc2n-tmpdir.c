@@ -46,6 +46,7 @@ int bind_dirs_count = 0;
 // Globals
 
 int _tmpdir_bind(spank_t sp, int ac, char **av);
+int _tmpdir_mkdir(spank_t sp, int ac, char **av);
 int _tmpdir_init(spank_t sp, int ac, char **av);
 int _tmpdir_init_opts(spank_t sp, int ac, char **av);
 
