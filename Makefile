@@ -1,6 +1,10 @@
 # Where are the Slurm include files?
 SLURMINC=/usr/local/slurm/latest/include
 
+PLUGINDIR=/usr/local/slurm/plugins
+TMPDIRSPANKDIR=${PLUGINDIR}/tmpdir
+
+
 all: hpc2n-tmpdir.so
 
 hpc2n-tmpdir.so: hpc2n-tmpdir.c
@@ -9,3 +13,7 @@ hpc2n-tmpdir.so: hpc2n-tmpdir.c
 
 clean:
 	rm -f hpc2n-tmpdir.o hpc2n-tmpdir.so
+
+install:	all
+	mkdir -p ${TMPDIRSPANKDIR}
+	install -m 755 hpc2n-tmpdir.so ${TMPDIRSPANKDIR}/
