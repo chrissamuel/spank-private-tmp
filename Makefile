@@ -1,7 +1,7 @@
 # Where are the Slurm include files?
-SLURMINC=/usr/local/slurm/latest/include
+SLURMINC=/apps/slurm/latest/include
 
-PLUGINDIR=/usr/local/slurm/plugins
+PLUGINDIR=/apps/slurm/plugins
 TMPDIRSPANKDIR=${PLUGINDIR}/tmpdir
 
 
