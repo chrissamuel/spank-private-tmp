@@ -28,12 +28,14 @@ SPANK_PLUGIN (hpc2n-tmpdir, 1);
 
 // Default
 const char *tmpdir = "/tmp/slurm";
+const char *shmtmpdir = "/dev/shm/slurm";
 #define MAX_BIND_DIRS 16
 
 // Globals
 int init_opts = 0;
 int binded = 0;
 char pbase [PATH_MAX+1] = "";
+char sbase [PATH_MAX+1] = ""; /* buffer for the /dev/shm bind mount base directory */
 uid_t uid = (uid_t)-1;
 gid_t gid = (gid_t)-1;
 uint32_t jobid;
@@ -42,6 +44,7 @@ uint32_t restartcount;
 char *bind_dirs[MAX_BIND_DIRS];
 char *bind_path[MAX_BIND_DIRS];
 int bind_dirs_count = 0;
+
 // Globals
 
 int _tmpdir_bind(spank_t sp, int ac, char **av);
@@ -72,8 +75,23 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
 			return -1;
 		}
 	}
+	if(mkdir(sbase,0700)) {
+		/*
+		 * If the directory already exists another node beat us to it.
+		 * Keep calm and carry on.
+		 */
+		if (EEXIST!=errno)
+		{
+			slurm_error("hpc2n-tmpdir: mkdir(\"%s\",0700): %m", sbase);
+			return -1;
+		}
+	}
 	if(chown(pbase,uid,gid)) {
 		slurm_error("hpc2n-tmpdir: chown(%s,%u,%u): %m", pbase,uid,gid);
+		return -1;
+	}
+	if(chown(sbase,uid,gid)) {
+		slurm_error("hpc2n-tmpdir: chown(%s,%u,%u): %m", sbase,uid,gid);
 		return -1;
 	}
 	for(i=0;i<bind_dirs_count;i++) {
@@ -150,6 +168,13 @@ int _tmpdir_bind(spank_t sp, int ac, char **av)
 		}
 	}
 
+	// Now for the /dev/shm bind mount
+	slurm_debug("hpc2n-tmpdir: mounting: %s %s", sbase, "/dev/shm");
+	if(mount(sbase, "/dev/shm", "none", MS_BIND, NULL)) {
+		slurm_error("hpc2n-tmpdir: failed to mount %s for job: %u, %m", "/dev/shm", jobid);
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -196,6 +221,13 @@ int _tmpdir_init(spank_t sp, int ac, char **av) {
 		return -1;
 	}
 
+	// Init /dev/shm base path
+	n = snprintf(sbase, sizeof(sbase), "%s/%u.%u", shmtmpdir, jobid, restartcount);
+	if( n < 0 || n > sizeof(sbase) - 1 ) {
+		slurm_error("hpc2n-tmpdir: \"%s/%u.%u\" too large. Aborting",shmtmpdir,jobid,restartcount);
+		return -1;
+	}
+
 	// Init bind dirs path(s)
 	for(int i=0;i<bind_dirs_count;i++) {
 		bind_path[i] = malloc(strlen(pbase)+strlen(bind_dirs[i])+2);
@@ -237,6 +269,19 @@ int _tmpdir_init_opts(spank_t sp, int ac, char **av)
 
 	// for each argument in plugstack.conf
 	for(i = 0; i < ac; i++) {
+		if(strncmp("shmbase=", av[i], 8) == 0) {
+			const char *optarg = av[i] + 8;
+			if(!strlen(optarg)) {
+				slurm_error("hpc2n-tmpdir: no argument given to base= option");
+				return -1;
+			}
+			shmtmpdir = strdup(optarg);
+			if(!tmpdir) {
+				slurm_error("hpc2n-tmpdir: can't malloc :-(");
+				return -1;
+			}
+			continue;
+		}
 		if(strncmp("base=", av[i], 5) == 0) {
 			const char *optarg = av[i] + 5;
 			if(!strlen(optarg)) {

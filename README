@@ -1,9 +1,13 @@
 
 This is a SPANK plugin for Slurm to create a private /tmp for each job.
+This version also bind mounts in a private /dev/shm for the job too.
 
 If you have issues please let us know or fix it and send us a patch.
 
-Author: 
+Current maintainer of this branch:
+	Chris Samuel <chris@csamuel.org>
+
+Original Author: 
 	Magnus Jonsson <magnus@hpc2n.umu.se> 
 
 Contributions from:
